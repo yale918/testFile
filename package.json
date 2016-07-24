@@ -1,0 +1,15 @@
+{
+    "name":"wschat",
+    "version":"0.0.1",
+    "description":"second socket.io app",
+    "scripts":{
+    	"start":"node WsServer-node.js"
+    },
+    "engines":{
+    	"node": "v4.4.1"
+    },
+    "dependencies":{
+	"express": "^4.9.6",
+        "socket.io": "^1.1.0"
+    }
+}

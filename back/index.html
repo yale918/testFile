@@ -1,0 +1,117 @@
+<html>
+<head>
+<style>
+#mainFrame{
+	width:510px;
+	height:320px;
+
+	position:absolute;
+	top:50%;
+	left:50%;
+	margin-top:-150px;
+	margin-left:-250px;
+}
+
+</style>
+<script src="../node_modules/socket.io/node_modules/socket.io-client/socket.io.js"></script>
+
+
+<script>
+	var myName;
+	var pdata;
+	var socket = io('http://localhost:5566');
+	
+	socket.on('toClient', function(data){
+		pdata = data;
+		alert("Server: "+pdata);
+		socket.emit('toServer', "hello Server");
+	});	
+	socket.on('assignName', function(data){
+		myName = data;
+	});
+	socket.on('joinResult', function(data){
+		document.getElementById("room").value = myName+ " join in "+data.room+"\n";
+	});
+	
+	socket.on('chatArea', function(data){
+		//alert('in it');
+		document.getElementById("chatArea").value += data.message+"\n";
+	});
+	
+	
+	window.onload = function(){
+		document.getElementById('changeRoom').addEventListener("click",changeRoom);
+		chatMessageListener();
+		
+	}
+	function chatMessageListener(){
+		socket.on('chatMessage',function(data){
+			document.getElementById("chatArea").value += data.message+"\n";
+		});
+		socket.on('roomMessage',function(data){
+			document.getElementById("room").value += data.message+"\n";
+		});
+	}
+	function changeRoom(){
+		socket.emit("changeToRoom1",{room: "room1"});
+		document.getElementById('chatArea').value = "";
+	}
+	
+	function getInput(){
+		var message = document.getElementById('input').value;
+		document.getElementById('input').value = "";
+		document.getElementById('chatArea').value += myName+": "+message+"\n";
+		//alert(message);
+		socket.emit('chatMessage', {message: message});
+	}
+	
+
+</script>
+</head>
+  
+<body>
+	<div id="mainFrame">
+		<div style="width:510px;height:50px;">
+          
+			<div style="background-color:linen;float:left;width:400px;height:50px;border:1px solid #666666">
+			  <div id="changeRoom" style="border:1px solid #666666;line-height:40px;text-align:center;style=cursor:pointer;border-radius:10px;background-color:darkorange;margin-top:5px;margin-left:5px;margin-right:5px;float:left;width:88px;height:40px;">
+				ROOM1<!--<input id="changeRoom" type="submit" value="Room1"></input>-->
+			  </div>
+              <div id="changeRoom" style="border:1px solid #666666;line-height:40px;text-align:center;style=cursor:pointer;border-radius:10px;background-color:darkorange;margin-top:5px;margin-left:5px;margin-right:5px;float:left;width:88px;height:40px;">
+				LOBBY<!--<input id="changeRoom" type="submit" value="Room1"></input>-->
+			  </div>
+              <div style="border-radius:10px;background-color:darkorange;margin-top:5px;margin-left:5px;margin-right:5px;float:left;width:88px;height:40px;border:1px solid #666666;"></div>
+              <div style="border-radius:10px;background-color:darkorange;margin-top:5px;margin-left:5px;margin-right:5px;float:left;width:88px;height:40px;border:1px solid #666666;"></div>
+			</div>
+            
+			<div style="background-color:linen;marginleft:10px;float:right;width:100px;height:50px;">
+				<textarea id ="room" readonly="readonly" style="border:1px solid #666666;resize: none;font-size:10px;background-color:linen;width:100%;height:100%">
+</textarea>
+			</div>
+		</div>
+		
+		<div style="margin-top:10px;width:510px;height:200px;">
+			<div style="background-color:linen;float:left;width:398px;height:200px;">
+				<textarea   readonly="readonly" id ="chatArea" style="resize: none;background-color:linen;width:100%;height:100%;border:1px solid #666666"></textarea>
+			</div>
+                        
+			<div style="background-color:linen;margin-left:10px;float:right;width:98px;height:200px;border:1px solid #666666"	"></div>
+		</div>
+		
+		<div  style="margin-top:10px;background-color:linen;width:510px;height:30px;">
+		
+	<input onchange="getInput()" id="input" type="text" style="background-color:linen;width:430px;width:100%;height:100%;border:1px solid #666666 "></input>
+		</div>
+	</div>
+	
+	<a id="button"></a>
+
+<br/>
+
+<!--<div id = "roomMessage"  width=""></div>-->
+</br>
+
+</br>
+
+</body>
+</html>

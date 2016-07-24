@@ -1,0 +1,66 @@
+<h1>Hello WSChatroom</h1>
+<script src="../node_modules/socket.io/node_modules/socket.io-client/socket.io.js"></script>
+
+
+<script>
+	var myName;
+	var pdata;
+	var socket = io('http://localhost:5566');
+	
+	socket.on('toClient', function(data){
+		pdata = data;
+		alert("Server: "+pdata);
+		socket.emit('toServer', "hello Server");
+	});	
+	socket.on('assignName', function(data){
+		myName = data;
+	});
+	socket.on('joinResult', function(data){
+		document.getElementById("room").value = myName+ " join in "+data.room+"\n";
+	});
+	
+	socket.on('chatArea', function(data){
+		//alert('in it');
+		document.getElementById("chatArea").value += data.message+"\n";
+	});
+	
+	
+	window.onload = function(){
+		document.getElementById('changeRoom').addEventListener("click",changeRoom);
+		chatMessageListener();
+		
+	}
+	function chatMessageListener(){
+		socket.on('chatMessage',function(data){
+			document.getElementById("chatArea").value += data.message+"\n";
+		});
+		socket.on('roomMessage',function(data){
+			document.getElementById("room").value += data.message+"\n";
+		});
+	}
+	function changeRoom(){
+		socket.emit("changeToRoom1",{room: "room1"});
+		document.getElementById('chatArea').value = "";
+	}
+	
+	function getInput(){
+		var message = document.getElementById('input').value;
+		document.getElementById('input').value = "";
+		document.getElementById('chatArea').value += myName+": "+message+"\n";
+		//alert(message);
+		socket.emit('chatMessage', {message: message});
+	}
+	
+
+</script>
+
+<a id="button"></a>
+<input id="changeRoom" type="submit" value="changeRoomToRoom1"></input>
+<br/>
+<textarea id ="room" rows="3" cols="50">
+</textarea>
+<!--<div id = "roomMessage"  width=""></div>-->
+</br>
+<textarea id ="chatArea" rows="10" cols="50"></textarea>
+</br>
+<input onchange="getInput()" id="input" type="text" style="width:430px"></input>
